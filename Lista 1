@@ -1,1 +1,33 @@
+# EXERCÍCIO 1
 
+from io import BytesIO
+from urllib.request import urlopen
+
+import matplotlib.pyplot as plt
+from PIL import Image
+
+image_url = ("https://raw.githubusercontent.com/florencio300/""LISTA-1-PROC-SIN-II/main/dataset/lena2.tif")
+
+with urlopen(image_url) as response:
+    original = Image.open(BytesIO(response.read())).convert("RGB")
+
+resized_1 = original.resize((256, 256), Image.Resampling.LANCZOS)
+resized_2 = original.resize((128, 128), Image.Resampling.LANCZOS)
+resized_3 = original.resize((64, 64), Image.Resampling.LANCZOS)
+
+fig, axes = plt.subplots(1, 4, figsize=(12, 4), constrained_layout=True)
+
+axes[0].imshow(original)
+axes[0].set_title(f"Original ({original.width} × {original.height})")
+axes[1].imshow(resized_1)
+axes[1].set_title("Resized (256 × 256)")
+axes[2].imshow(resized_2)
+axes[2].set_title("Resized (128 × 128)")
+axes[3].imshow(resized_3)
+axes[3].set_title("Resized (64 × 64)")
+
+for ax in axes:
+    ax.axis("off")
+    ax.set_box_aspect(1)
+
+plt.show()
