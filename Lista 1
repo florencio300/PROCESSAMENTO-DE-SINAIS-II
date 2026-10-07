@@ -1,4 +1,4 @@
-# EXERCÍCIO 1
+EXERCÍCIO 1 ###############################################################################################################################################################################################################
 
 from io import BytesIO
 from urllib.request import urlopen
@@ -31,3 +31,109 @@ for ax in axes:
     ax.set_box_aspect(1)
 
 plt.show()
+
+
+EXERCÍCIO 2 ###############################################################################################################################################################################################################
+
+from io import BytesIO
+from urllib.request import urlopen
+import matplotlib.pyplot as plt
+from PIL import Image
+
+image = ("https://raw.githubusercontent.com/florencio300/""LISTA-1-PROC-SIN-II/main/dataset/lena3.tif")
+
+with urlopen(image) as response:
+    image = Image.open(BytesIO(response.read()))
+
+image_R = image.getchannel("R")
+image_G = image.getchannel("G")
+image_B = image.getchannel("B")
+
+fig, axes = plt.subplots(1, 4, figsize=(12, 4), constrained_layout=True)
+
+axes[0].imshow(image)
+axes[0].set_title("Original"), 
+
+axes[1].imshow(image_R, cmap="gray",)
+axes[1].set_title("RED channel")
+
+axes[2].imshow(image_G, cmap="gray")
+axes[2].set_title("GREEN channel")
+
+axes[3].imshow(image_B, cmap="gray")
+axes[3 ].set_title("BLUE channel")
+
+for ax in axes:
+    ax.axis("off")
+    ax.set_box_aspect(1)
+
+plt.show()
+
+EXERCÍCIO 3 ###############################################################################################################################################################################################################
+
+from io import BytesIO
+from urllib.request import urlopen
+import matplotlib.pyplot as plt
+from PIL import Image
+
+image_1 = ("https://raw.githubusercontent.com/florencio300/""LISTA-1-PROC-SIN-II/main/dataset/lena3.tif")
+image_2 = ("https://raw.githubusercontent.com/florencio300/""LISTA-1-PROC-SIN-II/main/dataset/lena2.tif")
+
+with urlopen(image_1 ) as response:
+    img_1 = Image.open(BytesIO(response.read()))
+
+with urlopen(image_2 ) as response:
+    img_2 = Image.open(BytesIO(response.read()))
+
+bits_1 = img_1.tag_v2.get(258)
+bits_2 = img_2.tag_v2.get(258)
+
+print(f"Image 1: size {img_1.size} and ", f"bits: {bits_1}.")
+print(f"Image 2: size {img_2.size} and ", f"bits: {bits_2}. " f"For this single channel image (grayscale), the number of colors is 2^{"(num_bits)"}")
+
+bits_list = (6, 4, 2, 1)
+
+fig, axes = plt.subplots(1, 5, figsize=(15, 4), constrained_layout=True)
+
+axes[0].imshow(img_2, cmap="gray")
+axes[0].set_title("Original")
+
+for ax, bits in zip(axes[1:], bits_list):
+    color_count = 2**bits
+    quantized = img_2.convert("RGB").quantize(
+        colors=color_count,
+        method=Image.Quantize.MEDIANCUT,
+    )
+    ax.imshow(quantized.convert("RGB"))
+    ax.set_title(f"{bits} bits/pixel\n({color_count} colors)")
+
+for ax in axes:
+   ax.axis("off")
+    ax.set_box_aspect(1)
+
+plt.show() 
+
+EXERCÍCIO 4 ###############################################################################################################################################################################################################
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+square1 = np.full((256, 256), 50, dtype=np.uint8)  
+
+square1[112:144, 112:144] = 49.9999999999999964
+  
+square2 = np.full((256, 256), 50, dtype=np.uint8)  
+
+square2[112:144, 112:144] = 50.99999999999999645
+
+fig, axes = plt.subplots(1, 2, figsize=(12, 4), constrained_layout=True)
+axes[0].imshow(square1, cmap="gray", vmin=0, vmax=128, interpolation="nearest")
+axes[0].set_title("Center square level increase")
+axes[1].imshow(square2, cmap="gray", vmin=0, vmax=128, interpolation="nearest")
+axes[1].set_title("Center square level decrease")
+
+for ax in axes:
+    ax.axis("off")
+plt.show()
+
+EXERCÍCIO 5 ###############################################################################################################################################################################################################
