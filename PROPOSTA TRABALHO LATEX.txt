@@ -68,7 +68,7 @@ O projeto utiliza o principalmente o dataset \texttt{priteshraj10/computational-
 
 \section{Resultados Esperados}
 \begin{itemize}
-    \item \textbf{Precisão Geométrica:} Alta precisão na identificação da série NACA correta a partir de máscaras de simulação limpas ou com leve ruído devido a base de dados forte e precisa.
+    \item \textbf{Precisão Geométrica:} Alta precisão na identificação da série NACA correta a partir de máscaras de simulação limpas, ou com leve ruído, devido a base de dados forte e precisa.
     \item \textbf{Velocidade de Processamento:} Tempo de inferência rápido,superando significativamente a resolução tradicional de CFD.
     \item \textbf{Saída de Dados:} Geração de um relatório automatizado detalhando o perfil identificado com seu respectivo similar geométrico NACA, a porcentagem de similaridade e os valores estimados de $C_L$ e $C_D$.
 \end{itemize}
