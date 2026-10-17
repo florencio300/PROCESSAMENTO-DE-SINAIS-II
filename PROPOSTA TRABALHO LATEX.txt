@@ -1,0 +1,86 @@
+\documentclass[conference]{IEEEtran}
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage[T1]{fontenc}
+\usepackage[portuguese]{babel}
+\usepackage{float}
+\renewcommand{\IEEEkeywordsname}{Palavras-chave}
+\raggedbottom
+\begin{document}
+
+\title{Análise CFD Simples via Visão Computacional: Identificação Geométrica Automatizada e Estimativa de Desempenho Aerodinâmico de Aerofólios Série NACA}
+
+\author{\IEEEauthorblockN{Gabriel Florencio da Fonseca}
+\IEEEauthorblockA{\textit{CEFET/RJ} \\
+Rio de Janeiro, Brasil \\
+19051016786@cefet-rj.br}
+}
+
+\maketitle
+
+\begin{abstract}
+Este projeto propõe uma estrutura computacional integrada combinando visão computacional, similaridade e análise aerodinâmica para aerofólios série NACA. A análise aerodinâmica via Dinâmica dos Fluidos Computacional (CFD) depende de simulações complexas, caras e exigentes em termos de harware. Este trabalho propõe introduzir uma metodologia para contornar simulações pesadas por meio do processamento de imagens de campos de escoamento de datasets estabelecidos, isolando a geometria do aerofólio, calculando sua similaridade geométrica em relação a um banco de dados de referência de perfis NACA padrões, e estimando rapidamente seus coeficientes aerodinâmicos ($C_L$ e $C_D$). O código resultante oferece uma alternativa leve e dinâmica, adequada para aplicações de gêmeos digitais.
+\\
+\end{abstract}
+
+\begin{IEEEkeywords}
+Dinâmica dos Fluidos Computacional (CFD), Visão Computacional, Detecção de Bordas, Aerofólios NACA, XFOIL, Python.
+\end{IEEEkeywords}
+
+\section{Introdução}
+
+A análise aerodinâmica é um pilar fundamental na engenharia mecânica, automotiva e aeroespacial. Avaliar o comportamento do escoamento de ar ao redor de superfícies tipicamente requer a solução das equações de Navier-Stokes por meio de resolvedores avançados de CFD como OpenFOAM e Ansys, ou a realização de testes físicos em túnel de vento. Ambos exigem recursos computacionais significativos, hardware especializado e tempo prolongado de processamento. 
+
+O problema central abordado por este projeto é: \textit{Como simplificar a identificação de Coeficientes de Arrasto e de Sustentação Negativa dado um aerofólio ja existente de propriedades desconhecidas sem ter de utilizar softwares de simulação CFD complexos que demandam conhecimento e hardware? }
+
+Ao apresentar uma alternativa rápida e prática à simulações complexas, possibilitando uma interface mais convidativa àqueles ainda não familiares com definição de ambientes de simulação, este projeto estabelece uma integração eficiente em Python que conecta a extração de características por visão computacional com manipulações de datasets pré-existentes.
+
+\section{Metodologia}
+
+\begin{enumerate}
+    \item \textbf{Nomenclatura e Parametrização:} A série NACA de aerofólios é um conglomerado de geometrias aerodinâmicas testadas e parametrizadas pela NASA, entregando propriedades próprias para diversos usos específicos. A serie de aerofólios de quatro dígitos são definidos matematicamente pela curvatura (camber), posição da curvatura máxima e espessura máxima. A geração programática desses perfis a partir de bases de dados de coordenadas como a da Universidade de Illinois Urbana-Champaign (UIUC) fornece uma base de dados com mais de 1500 geometrias parametrizadas.
+    \item \textbf{Técnicas de Correspondência de Contornos:} Para comparar um contorno extraído com perfis padrão, técnicas como Detecção de Bordas, Análise de Procrustes , Momentos de Hu ou Distância Euclidiana Direta / Erro Quadrático Médio (RMSE) em matrizes de coordenadas reamostradas são essenciais. A reamostragem por espaçamento em cosseno garante densidade de pontos uniforme, valorizando mais as bordas dado que são os pontos mais importantes para a análise.
+    \item \textbf{Resolvedores Aerodinâmicos:} Para tratar os dados obtidos, bibliotecas de resolução aerodinâmica adaptadas para o ambiente Python serão utilizadas (como o XFOIL e AeroSandbox) pois permitem cálculos de coeficientes corrigidos para condições de contorno em milissegundos, unindo a geometria ao desempenho.
+\end{enumerate}
+
+    O sistema proposto opera através de uma estrutura computacional modular desenvolvida em Python dividida nas seguintes seções:
+    
+\begin{itemize}
+    \item \textbf{Entradas :} Imagens de aerofólios presentes no dataset escolhido transformados em máscaras binárias seguidas de dados advindos de simulações contendo variáveis espaciais de escoamento (velocidade, pressão).
+    
+    \item \textbf{Visão Computacional e Pré-processamento:} Utilização das bibliotecas do OpenCV e scikit-image para executar subtração de fundo, limiarização adaptativa e extração de contornos. O contorno isolado do aerofólio é então normalizado (bordo de ataque alinhado na origem $(0,0)$, corda normalizada para comprimento unitário $1.0$).
+    
+    \item \textbf{Mecanismo de Correspondência Geométrica:} O contorno normalizado é comparado contra uma matriz pré-compilada de coordenadas NACA padrão usando métricas de distância vetorial. O perfil com o menor erro é sinalizado como a correspondência mais próxima, gerando uma porcentagem de similaridade esntre os perfis.
+    
+    \item \textbf{Saídas:} Uma vez estabelecidas a designação NACA e as condições de escoamento (Ângulo de Ataque $\alpha$, Número de Reynolds $Re$), o sistema recupera rótulos pré-computados do dataset ou consulta funções do XFOIL para fornecer o coeficiente de sustentação ($C_L$) e o coeficiente de arrasto ($C_D$).
+\end{itemize}
+
+\section{Descrição do Dataset}
+O projeto utiliza o principalmente o dataset \texttt{priteshraj10/computational-fluid-dynamics} disponível no Kaggle e para as matrizes NACA usa-se o repositório da UIUC.
+\begin{itemize}
+    \item \textbf{Estrutura:} O dataset contém um arquivo de geometrias em forma matemática e o contorno do perfil em 2D (airfoil template.geo), condições de contorno para simulação (U template) e dois arquivos de execução das simulações. 
+    \item \textbf{Papel no Projeto:} Atua como a fonte de dados primária para testar a robustez da visão computacional sob condições variadas de escoamento, permitindo que o algoritmo isole formas com precisão a partir de representações complexas de campos.
+\end{itemize}
+
+\section{Resultados Esperados}
+\begin{itemize}
+    \item \textbf{Precisão Geométrica:} Alta precisão na identificação da série NACA correta a partir de máscaras de simulação limpas ou com leve ruído devido a base de dados forte e precisa.
+    \item \textbf{Velocidade de Processamento:} Tempo de inferência rápido,superando significativamente a resolução tradicional de CFD.
+    \item \textbf{Saída de Dados:} Geração de um relatório automatizado detalhando o perfil identificado com seu respectivo similar geométrico NACA, a porcentagem de similaridade e os valores estimados de $C_L$ e $C_D$.
+\end{itemize}
+
+\section{Cronograma}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{Gantt.png}
+    \caption{Diagrama de Gantt}
+    \label{fig:exemplo}
+\end{figure}
+
+
+\end{document}
